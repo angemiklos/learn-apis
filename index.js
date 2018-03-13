@@ -15,12 +15,23 @@ const STOCKS_URL_SUFFIX = `&types=quote&range=1m&last=5`;
 
 function displayResults1(res) {
     console.log(res.num);
+	   let newObj;
+	   let text1 = "";
+	   let text2 = "";
+	   	for (let key in res) {
+            newObj = res[key];
+            text1 += "<p>res[ " + key + "] = " + newObj + "</p>";
+	   	}
+	   	for (let key in newObj) {
+            text2 += "<p>res[ " + key + "] = " + newObj[key] + "</p>";
+	   	}
    $(".xkcd-api").html(`
    	<div>
    	    <p>XKCD Cartoon ${res.num}: ${res.title}</p>
    	    <img src=${res.img} alt=${res.alt}></img>
     </div>
    	`);
+   $(".xkcd-api").append(text1 + text2);
 }
 
 function getApi1(cartoonNumber) {
@@ -32,7 +43,6 @@ function getApi1(cartoonNumber) {
 		url = XKCD_PREFIX + cartoonNumber + XKCD_SUFFIX;
 	}
 	console.log("the url is: " + url);
-    displayResults1("Can't get this to work no matter what.");
 	$.ajax({
 		   type : "GET",		   
 		   dataType : "jsonp",
