@@ -1,8 +1,8 @@
 const WURL = `https://www.metaweather.com/api//api/location/search/?query=`;
 const proxyurl = "https://cors-anywhere.herokuapp.com/";
 const MURL = `https://developers.themoviedb.org/3/configuration/get-api-configuration`;
-const XKCD_PREFIX = `https://xkcd.com/`;
-const XKCD_SUFFIX = `/info.0.json`;
+const XKCD_PREFIX = `http://xkcd.com/`;
+const XKCD_SUFFIX = `/info.0.json`;//?callback=?`;
 const DOG_URL_PREFIX = `https://dog.ceo/api/breed/`;
 const DOG_URL_SUFFIX = `/images/random`;
 const CAT_URL_PREFIX = `https://http.cat/`;
@@ -34,7 +34,7 @@ function displayResults1(res) {
    $(".xkcd-api").append(text1 + text2);
 }
 
-function getApi1(cartoonNumber) {
+function getApi1(cartoonNumber, callback) {
 	console.log( cartoonNumber );
 	let url = "";
 	if (cartoonNumber == 0) {
@@ -43,11 +43,42 @@ function getApi1(cartoonNumber) {
 		url = XKCD_PREFIX + cartoonNumber + XKCD_SUFFIX;
 	}
 	console.log("the url is: " + url);
-	$.ajax({
-		   type : "GET",		   
-		   dataType : "jsonp",
-		   jsonpCallback : 'displayResults1',
-		   url : url});
+//	$.getJSON(url, callback);
+  $.ajax ({
+    type          : "GET",
+    url           : url,
+    dataType      : 'jsonp',
+  })
+  // Code to run if the request succeeds (is done);
+  // The response is passed to the function
+  .done(function( res ) {
+    console.log(res.num);
+	   let newObj;
+	   let text1 = "";
+	   let text2 = "";
+	   	for (let key in res) {
+            newObj = res[key];
+            text1 += "<p>res[ " + key + "] = " + newObj + "</p>";
+	   	}
+	   	for (let key in newObj) {
+            text2 += "<p>res[ " + key + "] = " + newObj[key] + "</p>";
+	   	}
+   $(".xkcd-api").html(`
+   	<div>
+   	    <p>XKCD Cartoon ${res.num}: ${res.title}</p>
+   	    <img src=${res.img} alt=${res.alt}></img>
+    </div>
+   	`);
+   $(".xkcd-api").append(text1 + text2);
+  })
+  // Code to run if the request fails; the raw request and
+  // status codes are passed to the function
+  .fail(function( xhr, status, errorThrown ) {
+    alert( "Sorry, there was a problem!" );
+    console.log( "Error: " + errorThrown );
+    console.log( "Status: " + status );
+    console.dir( xhr );
+  })
 
 }
 
@@ -187,7 +218,7 @@ function main() {
 	$(".js-form1").submit(event => {
 		event.preventDefault();
 		let $cartoon = $(".js-num").val();
-		getApi1($cartoon);
+		getApi1($cartoon, displayResults1);
 	});
 	$(".js-form2").submit(event => {
 		event.preventDefault();
